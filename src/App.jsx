@@ -1896,7 +1896,7 @@ export default function App() {
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, minWidth: 0, padding: "24px 32px", maxWidth: "960px", margin: "0 auto", overflow: "auto", width: "100%" }}>
+      <main style={{ flex: 1, padding: "24px 40px 24px 40px", overflow: "auto" }}>
         {page === "dashboard" && <Dashboard transactions={transactions} budgets={budgets} debts={debts} savingsPots={savingsPots} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} setPage={setPage} />}
         {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} />}
         {page === "savings" && <Savings savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} />}
