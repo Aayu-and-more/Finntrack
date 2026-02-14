@@ -1812,7 +1812,7 @@ export default function App() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: C.bg, display: "flex",
+      minHeight: "100vh", width: "100%", background: C.bg, display: "flex",
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif",
       color: C.text, fontSize: "14px",
     }}>
@@ -1896,7 +1896,7 @@ export default function App() {
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, padding: "24px 32px", maxWidth: "960px", margin: "0 auto", overflow: "auto", width: "100%" }}>
+      <main style={{ flex: 1, minWidth: 0, padding: "24px 32px", maxWidth: "960px", margin: "0 auto", overflow: "auto", width: "100%" }}>
         {page === "dashboard" && <Dashboard transactions={transactions} budgets={budgets} debts={debts} savingsPots={savingsPots} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} setPage={setPage} />}
         {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} />}
         {page === "savings" && <Savings savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} />}
