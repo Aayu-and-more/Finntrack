@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 // FINNTRACK — Complete Expense Tracker
 // ============================================================
 
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://jepzcqsigscbbtnaisrj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplcHpjcXNpZ3NjYmJ0bmFpc3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMzEzODQsImV4cCI6MjA4NjYwNzM4NH0.3tGl-OlSlD-2npDwKHKyGmZAFfaFZRMf7Dp-fsb1oik";
 
 const C = {
   bg: "#0B0F1A", card: "#141925", cardHover: "#1A2030", border: "#1E2538",
