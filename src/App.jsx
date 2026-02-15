@@ -830,8 +830,12 @@ export default function App() {
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 998, display: "none" }} className="mob-overlay" />}
 
       {/* Sidebar */}
-      <aside style={{ width: 220, minHeight: "100vh", background: C.card, borderRight: `1px solid ${C.border}`, padding: "20px 0", display: "flex", flexDirection: "column", flexShrink: 0, position: "fixed", left: sidebarOpen ? 0 : -220, top: 0, bottom: 0, zIndex: 999, transition: "left 0.2s ease" }}>
-        <style>{`@media (min-width: 769px) { aside { position: relative !important; left: 0 !important; } } @media (max-width: 768px) { .mob-overlay { display: block !important; } }`}</style>
+      <aside id="ft-sidebar" style={{ width: 220, minHeight: "100vh", background: C.card, borderRight: `1px solid ${C.border}`, padding: "20px 0", display: "flex", flexDirection: "column", flexShrink: 0, zIndex: 999, transition: "left 0.2s ease" }}>
+      <style>{`
+  #ft-sidebar { position: fixed; left: ${sidebarOpen ? "0" : "-220"}px; top: 0; bottom: 0; }
+  @media (min-width: 769px) { #ft-sidebar { position: relative !important; left: 0 !important; } }
+  @media (max-width: 768px) { .mob-overlay { display: block !important; } }
+`}</style>
         <div style={{ padding: "0 16px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ width: 32, height: 32, borderRadius: "8px", background: `linear-gradient(135deg, ${C.accent}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: C.bg, flexShrink: 0 }}>F</div>
           <span style={{ fontSize: "17px", fontWeight: 700, whiteSpace: "nowrap" }}>FinnTrack</span>
