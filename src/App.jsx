@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 // ============================================================
-// FINNTRACK — Complete Expense Tracker
+// FINNTRACK — Complete Expense Tracker (Supabase Integrated)
 // ============================================================
 
+// ⚠️ REPLACE THESE WITH YOUR EXACT SUPABASE CREDENTIALS IF THEY ARE DIFFERENT
 const SUPABASE_URL = "https://jepzcqsigscbbtnaisrj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplcHpjcXNpZ3NjYmJ0bmFpc3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMzEzODQsImV4cCI6MjA4NjYwNzM4NH0.3tGl-OlSlD-2npDwKHKyGmZAFfaFZRMf7Dp-fsb1oik";
 
@@ -47,66 +48,7 @@ const getMonthKey = (d) => { const x = new Date(d); return `${x.getFullYear()}-$
 const uid = () => Math.random().toString(36).substr(2, 9);
 
 // ============================================================
-// PERSISTENT STORAGE (demo mode only)
-// ============================================================
-const DB = {
-  async load(key, fb) { try { const r = await window.storage.get(key); return r ? JSON.parse(r.value) : fb; } catch { return fb; } },
-  async save(key, data) { try { await window.storage.set(key, JSON.stringify(data)); } catch {} }
-};
-
-// ============================================================
-// SAMPLE DATA
-// ============================================================
-const generateSampleData = () => {
-  const now = new Date();
-  const transactions = [];
-  const apps = PAYMENT_APPS.slice(0, 3);
-  const expCats = CATEGORIES.filter(c => !["income","transfer"].includes(c.id));
-  for (let m = 0; m < 3; m++) {
-    const month = new Date(now.getFullYear(), now.getMonth() - m, 1);
-    transactions.push({ id: uid(), amount: 2800, type: "income", category: "income", date: new Date(month.getFullYear(), month.getMonth(), 1).toISOString().slice(0,10), app: "AIB", note: "Salary", recurring: true });
-    const count = 15 + Math.floor(Math.random() * 10);
-    for (let i = 0; i < count; i++) {
-      const cat = expCats[Math.floor(Math.random() * expCats.length)];
-      const day = 1 + Math.floor(Math.random() * 28);
-      const ranges = { food:[8,45], transport:[3,30], shopping:[15,120], bills:[30,150], entertainment:[10,50], health:[20,80], groceries:[15,90], rent:[800,1200], education:[10,50], subscriptions:[5,20], travel:[30,200], other:[5,60] };
-      const [mn, mx] = ranges[cat.id] || [5, 50];
-      transactions.push({ id: uid(), amount: +(mn + Math.random() * (mx - mn)).toFixed(2), type: "expense", category: cat.id, date: new Date(month.getFullYear(), month.getMonth(), day).toISOString().slice(0,10), app: apps[Math.floor(Math.random() * apps.length)], note: "", recurring: cat.id === "subscriptions" || cat.id === "rent" });
-    }
-  }
-  const debts = [
-    { id: uid(), person: "Alex", amount: 45.50, direction: "owed_to_me", note: "Dinner split", date: now.toISOString().slice(0,10), settled: false },
-    { id: uid(), person: "Sarah", amount: 22.00, direction: "i_owe", note: "Cinema tickets", date: now.toISOString().slice(0,10), settled: false },
-    { id: uid(), person: "Mike", amount: 180.00, direction: "owed_to_me", note: "Weekend trip", date: now.toISOString().slice(0,10), settled: false },
-  ];
-  const budgets = [
-    { id: uid(), category: "food", limit: 400, period: "monthly" },
-    { id: uid(), category: "entertainment", limit: 100, period: "monthly" },
-    { id: uid(), category: "shopping", limit: 200, period: "monthly" },
-    { id: uid(), category: "transport", limit: 120, period: "monthly" },
-  ];
-  const savingsPots = [
-    { id: uid(), name: "Emergency Fund", icon: "🛡️", target: 10000, color: "#22D3A7", monthlyAmount: 500, contributions: [
-      { id: uid(), amount: 500, date: new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString().slice(0,10), note: "Monthly" },
-      { id: uid(), amount: 500, date: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0,10), note: "Monthly" },
-      { id: uid(), amount: 500, date: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10), note: "Monthly" },
-    ]},
-    { id: uid(), name: "Investments (ETFs)", icon: "📈", target: 25000, color: "#42A5F5", monthlyAmount: 200, contributions: [
-      { id: uid(), amount: 200, date: new Date(now.getFullYear(), now.getMonth() - 2, 5).toISOString().slice(0,10), note: "S&P 500" },
-      { id: uid(), amount: 200, date: new Date(now.getFullYear(), now.getMonth() - 1, 5).toISOString().slice(0,10), note: "S&P 500" },
-      { id: uid(), amount: 200, date: new Date(now.getFullYear(), now.getMonth(), 5).toISOString().slice(0,10), note: "S&P 500" },
-    ]},
-    { id: uid(), name: "Holiday Fund", icon: "✈️", target: 3000, color: "#FFB74D", monthlyAmount: 150, contributions: [
-      { id: uid(), amount: 150, date: new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString().slice(0,10), note: "Monthly" },
-      { id: uid(), amount: 150, date: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0,10), note: "Monthly" },
-      { id: uid(), amount: 150, date: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10), note: "Monthly" },
-    ]},
-  ];
-  return { transactions, debts, budgets, savingsPots };
-};
-
-// ============================================================
-// GLOBAL CSS — Injected once, overrides everything
+// GLOBAL CSS
 // ============================================================
 const GlobalCSS = () => (
   <style>{`
@@ -122,47 +64,9 @@ const GlobalCSS = () => (
     ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
     select option { background: ${C.card}; color: ${C.text}; }
     input[type="checkbox"] { accent-color: ${C.accent}; }
-    @media (max-width: 768px) {
-      html { font-size: 13px; }
-    }
+    @media (max-width: 768px) { html { font-size: 13px; } }
   `}</style>
 );
-
-// ============================================================
-// MINI CHARTS
-// ============================================================
-const SparkBar = ({ data, height = 60, color = C.accent }) => {
-  if (!data.length) return null;
-  const max = Math.max(...data.map(d => d.value), 1);
-  const w = Math.min(24, (280 / data.length) - 2);
-  return (
-    <svg width="100%" height={height + 16} viewBox={`0 0 ${data.length * (w + 2)} ${height + 16}`} style={{ overflow: "visible" }}>
-      {data.map((d, i) => (
-        <g key={i}>
-          <rect x={i*(w+2)} y={height - (d.value/max)*(height-8)} width={w} height={Math.max((d.value/max)*(height-8), 2)} rx={3} fill={d.highlight ? color : C.border} opacity={d.highlight ? 1 : 0.5} />
-          <text x={i*(w+2)+w/2} y={height+12} textAnchor="middle" fill={C.textDim} fontSize="8" fontFamily="inherit">{d.label}</text>
-        </g>
-      ))}
-    </svg>
-  );
-};
-
-const DonutChart = ({ segments, size = 110 }) => {
-  const total = segments.reduce((s, seg) => s + seg.value, 0);
-  if (!total) return null;
-  const r = size/2 - 8, cx = size/2, cy = size/2, ir = r*0.6;
-  let cum = 0;
-  return (
-    <svg width={size} height={size}>
-      {segments.map((seg, i) => {
-        const s = cum/total*2*Math.PI - Math.PI/2; cum += seg.value;
-        const e = cum/total*2*Math.PI - Math.PI/2;
-        const la = (e-s) > Math.PI ? 1 : 0;
-        return <path key={i} d={`M ${cx+r*Math.cos(s)} ${cy+r*Math.sin(s)} A ${r} ${r} 0 ${la} 1 ${cx+r*Math.cos(e)} ${cy+r*Math.sin(e)} L ${cx+ir*Math.cos(e)} ${cy+ir*Math.sin(e)} A ${ir} ${ir} 0 ${la} 0 ${cx+ir*Math.cos(s)} ${cy+ir*Math.sin(s)} Z`} fill={seg.color} opacity={0.85} />;
-      })}
-    </svg>
-  );
-};
 
 // ============================================================
 // REUSABLE UI
@@ -220,8 +124,41 @@ const Badge = ({ children, color = C.accent }) => (
 );
 
 // ============================================================
-// STAT CARD (used on dashboard + savings)
+// CHARTS
 // ============================================================
+const SparkBar = ({ data, height = 60, color = C.accent }) => {
+  if (!data.length) return null;
+  const max = Math.max(...data.map(d => d.value), 1);
+  const w = Math.min(24, (280 / data.length) - 2);
+  return (
+    <svg width="100%" height={height + 16} viewBox={`0 0 ${data.length * (w + 2)} ${height + 16}`} style={{ overflow: "visible" }}>
+      {data.map((d, i) => (
+        <g key={i}>
+          <rect x={i*(w+2)} y={height - (d.value/max)*(height-8)} width={w} height={Math.max((d.value/max)*(height-8), 2)} rx={3} fill={d.highlight ? color : C.border} opacity={d.highlight ? 1 : 0.5} />
+          <text x={i*(w+2)+w/2} y={height+12} textAnchor="middle" fill={C.textDim} fontSize="8" fontFamily="inherit">{d.label}</text>
+        </g>
+      ))}
+    </svg>
+  );
+};
+
+const DonutChart = ({ segments, size = 110 }) => {
+  const total = segments.reduce((s, seg) => s + seg.value, 0);
+  if (!total) return null;
+  const r = size/2 - 8, cx = size/2, cy = size/2, ir = r*0.6;
+  let cum = 0;
+  return (
+    <svg width={size} height={size}>
+      {segments.map((seg, i) => {
+        const s = cum/total*2*Math.PI - Math.PI/2; cum += seg.value;
+        const e = cum/total*2*Math.PI - Math.PI/2;
+        const la = (e-s) > Math.PI ? 1 : 0;
+        return <path key={i} d={`M ${cx+r*Math.cos(s)} ${cy+r*Math.sin(s)} A ${r} ${r} 0 ${la} 1 ${cx+r*Math.cos(e)} ${cy+r*Math.sin(e)} L ${cx+ir*Math.cos(e)} ${cy+ir*Math.sin(e)} A ${ir} ${ir} 0 ${la} 0 ${cx+ir*Math.cos(s)} ${cy+ir*Math.sin(s)} Z`} fill={seg.color} opacity={0.85} />;
+      })}
+    </svg>
+  );
+};
+
 const StatCard = ({ label, value, color, bg, icon }) => (
   <Card style={{ padding: "16px" }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
@@ -258,10 +195,7 @@ const Dashboard = ({ transactions, budgets, debts, savingsPots, currentMonth, se
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-        <div>
-          <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Dashboard</h2>
-          <p style={{ margin: "4px 0 0", color: C.textMuted, fontSize: "13px" }}>Your financial overview</p>
-        </div>
+        <div><h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Dashboard</h2><p style={{ margin: "4px 0 0", color: C.textMuted, fontSize: "13px" }}>Your financial overview</p></div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button onClick={() => navMonth(-1)} style={{ ...btn, background: C.border, color: C.textMuted, padding: "6px 10px", fontSize: "14px" }}>←</button>
           <span style={{ fontWeight: 600, fontSize: "15px", minWidth: "100px", textAlign: "center" }}>{monthLabel}</span>
@@ -332,7 +266,7 @@ const Dashboard = ({ transactions, budgets, debts, savingsPots, currentMonth, se
 // ============================================================
 // TRANSACTIONS
 // ============================================================
-const Transactions = ({ transactions, setTransactions, onSave }) => {
+const Transactions = ({ transactions, setTransactions, onSave, userId, supabase, loadData }) => {
   const [filter, setFilter] = useState({ type: "all", category: "all", app: "all", search: "" });
   const [showAdd, setShowAdd] = useState(false);
   const [showCSV, setShowCSV] = useState(false);
@@ -341,16 +275,35 @@ const Transactions = ({ transactions, setTransactions, onSave }) => {
 
   const filtered = useMemo(() => transactions.filter(t => (filter.type === "all" || t.type === filter.type) && (filter.category === "all" || t.category === filter.category) && (filter.app === "all" || t.app === filter.app) && (filter.search === "" || t.note?.toLowerCase().includes(filter.search.toLowerCase()) || CATEGORIES.find(c=>c.id===t.category)?.name.toLowerCase().includes(filter.search.toLowerCase()))).sort((a, b) => new Date(b.date) - new Date(a.date)), [transactions, filter]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.amount || parseFloat(form.amount) <= 0) return;
-    const tx = { ...form, amount: parseFloat(form.amount), id: editTx ? editTx.id : uid() };
-    if (editTx) setTransactions(prev => prev.map(t => t.id === editTx.id ? tx : t));
-    else setTransactions(prev => [...prev, tx]);
-    onSave(); setShowAdd(false); setEditTx(null);
-    setForm({ amount: "", type: "expense", category: "food", date: new Date().toISOString().slice(0,10), app: "Revolut", note: "", recurring: false });
+    const tx = { ...form, amount: parseFloat(form.amount), user_id: userId };
+    
+    let error = null;
+    if (editTx) {
+        const { error: err } = await supabase.from('transactions').update(tx).eq('id', editTx.id);
+        error = err;
+    } else {
+        const { error: err } = await supabase.from('transactions').insert([tx]);
+        error = err;
+    }
+
+    if (!error) {
+        await loadData();
+        setShowAdd(false);
+        setEditTx(null);
+        setForm({ amount: "", type: "expense", category: "food", date: new Date().toISOString().slice(0,10), app: "Revolut", note: "", recurring: false });
+    } else {
+        alert("Failed to save transaction");
+    }
   };
 
-  const handleCSVImport = (text) => {
+  const deleteTransaction = async (id) => {
+      const { error } = await supabase.from('transactions').delete().eq('id', id);
+      if (!error) loadData();
+  };
+
+  const handleCSVImport = async (text) => {
     try {
       const lines = text.trim().split("\n"); const imported = [];
       for (let i = 1; i < lines.length; i++) {
@@ -358,11 +311,17 @@ const Transactions = ({ transactions, setTransactions, onSave }) => {
         if (cols.length >= 2) {
           const amount = parseFloat(cols.find(c => !isNaN(parseFloat(c))) || "0");
           const dateCol = cols.find(c => /\d{4}-\d{2}-\d{2}/.test(c)) || new Date().toISOString().slice(0,10);
-          if (amount !== 0) imported.push({ id: uid(), amount: Math.abs(amount), type: "expense", category: "other", date: dateCol, app: "CSV Import", note: cols[0] || "", recurring: false });
+          if (amount !== 0) imported.push({ amount: Math.abs(amount), type: "expense", category: "other", date: dateCol, app: "CSV Import", note: cols[0] || "", recurring: false, user_id: userId });
         }
       }
-      if (imported.length > 0) { setTransactions(prev => [...prev, ...imported]); onSave(); }
-      setShowCSV(false); alert(`Imported ${imported.length} transactions!`);
+      if (imported.length > 0) { 
+          const { error } = await supabase.from('transactions').insert(imported);
+          if (!error) {
+              await loadData();
+              setShowCSV(false); 
+              alert(`Imported ${imported.length} transactions!`);
+          }
+      }
     } catch { alert("Error parsing CSV."); }
   };
 
@@ -399,7 +358,7 @@ const Transactions = ({ transactions, setTransactions, onSave }) => {
               <p style={{ margin: "2px 0 0", fontSize: "12px", color: C.textDim }}>{dateStr(t.date)} · {t.app}{t.recurring ? " · 🔄" : ""}</p>
             </div>
             <span style={{ fontSize: "15px", fontWeight: 600, color: t.type === "income" ? C.accent : C.text, flexShrink: 0 }}>{t.type === "income" ? "+" : "-"}{fmt(t.amount)}</span>
-            <button onClick={e => { e.stopPropagation(); setTransactions(prev => prev.filter(x => x.id !== t.id)); onSave(); }} style={{ ...btn, background: "none", color: C.textDim, fontSize: "16px", padding: "4px 8px", border: "none" }}>×</button>
+            <button onClick={e => { e.stopPropagation(); deleteTransaction(t.id); }} style={{ ...btn, background: "none", color: C.textDim, fontSize: "16px", padding: "4px 8px", border: "none" }}>×</button>
           </div>
         ); })}
       </Card>
@@ -439,10 +398,33 @@ const Transactions = ({ transactions, setTransactions, onSave }) => {
 // ============================================================
 // DEBTS
 // ============================================================
-const Debts = ({ debts, setDebts, onSave }) => {
+const Debts = ({ debts, setDebts, onSave, userId, supabase, loadData }) => {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ person: "", amount: "", direction: "owed_to_me", note: "", date: new Date().toISOString().slice(0,10) });
-  const handleSubmit = () => { if (!form.person || !form.amount) return; setDebts(prev => [...prev, { ...form, amount: parseFloat(form.amount), id: uid(), settled: false }]); onSave(); setShowAdd(false); setForm({ person: "", amount: "", direction: "owed_to_me", note: "", date: new Date().toISOString().slice(0,10) }); };
+  
+  const handleSubmit = async () => { 
+      if (!form.person || !form.amount) return; 
+      
+      const debtData = { ...form, amount: parseFloat(form.amount), settled: false, user_id: userId };
+      const { error } = await supabase.from('debts').insert([debtData]);
+      
+      if (!error) {
+          await loadData();
+          setShowAdd(false); 
+          setForm({ person: "", amount: "", direction: "owed_to_me", note: "", date: new Date().toISOString().slice(0,10) }); 
+      }
+  };
+
+  const handleSettle = async (id) => {
+      const { error } = await supabase.from('debts').update({ settled: true }).eq('id', id);
+      if (!error) loadData();
+  };
+
+  const handleDelete = async (id) => {
+      const { error } = await supabase.from('debts').delete().eq('id', id);
+      if (!error) loadData();
+  };
+
   const active = debts.filter(d => !d.settled); const settled = debts.filter(d => d.settled);
   const totalOwed = active.filter(d => d.direction === "owed_to_me").reduce((s, d) => s + d.amount, 0);
   const totalIOwe = active.filter(d => d.direction === "i_owe").reduce((s, d) => s + d.amount, 0);
@@ -472,8 +454,8 @@ const Debts = ({ debts, setDebts, onSave }) => {
             <Badge color={d.direction === "owed_to_me" ? C.accent : C.red}>{d.direction === "owed_to_me" ? "owes you" : "you owe"}</Badge>
             <span style={{ flex: 1, fontSize: "13px", color: C.textMuted }}>{d.note || "—"}</span>
             <span style={{ fontSize: "14px", fontWeight: 600 }}>{fmt(d.amount)}</span>
-            <Button variant="small" onClick={() => { setDebts(prev => prev.map(x => x.id === d.id ? { ...x, settled: true } : x)); onSave(); }}>Settle</Button>
-            <button onClick={() => { setDebts(prev => prev.filter(x => x.id !== d.id)); onSave(); }} style={{ ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
+            <Button variant="small" onClick={() => handleSettle(d.id)}>Settle</Button>
+            <button onClick={() => handleDelete(d.id)} style={{ ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
           </div>)}
         </Card>
       ))}
@@ -496,13 +478,28 @@ const Debts = ({ debts, setDebts, onSave }) => {
 // ============================================================
 // BUDGETS
 // ============================================================
-const Budgets = ({ budgets, setBudgets, transactions, currentMonth, onSave }) => {
+const Budgets = ({ budgets, setBudgets, transactions, currentMonth, onSave, userId, supabase, loadData }) => {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ category: "food", limit: "" });
   const byCat = {}; transactions.filter(t => getMonthKey(t.date) === currentMonth && t.type === "expense").forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount; });
   const existingCats = budgets.map(b => b.category);
   const availableCats = CATEGORIES.filter(c => !["income","transfer"].includes(c.id) && !existingCats.includes(c.id));
-  const handleSubmit = () => { if (!form.limit) return; setBudgets(prev => [...prev, { ...form, limit: parseFloat(form.limit), id: uid(), period: "monthly" }]); onSave(); setShowAdd(false); setForm({ category: availableCats[0]?.id || "food", limit: "" }); };
+  
+  const handleSubmit = async () => { 
+      if (!form.limit) return; 
+      const budgetData = { ...form, limit: parseFloat(form.limit), period: "monthly", user_id: userId };
+      const { error } = await supabase.from('budgets').insert([budgetData]);
+      if (!error) {
+          await loadData();
+          setShowAdd(false); 
+          setForm({ category: availableCats[0]?.id || "food", limit: "" }); 
+      }
+  };
+
+  const handleDelete = async (id) => {
+      const { error } = await supabase.from('budgets').delete().eq('id', id);
+      if (!error) loadData();
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -514,7 +511,7 @@ const Budgets = ({ budgets, setBudgets, transactions, currentMonth, onSave }) =>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
         {budgets.map(b => { const cat = CATEGORIES.find(c => c.id === b.category); const spent = byCat[b.category] || 0; const pct = Math.min((spent/b.limit)*100, 100); const remaining = b.limit - spent; const sc = pct > 90 ? C.red : pct > 70 ? C.amber : C.accent; return (
           <Card key={b.id} style={{ position: "relative" }}>
-            <button onClick={() => { setBudgets(prev => prev.filter(x => x.id !== b.id)); onSave(); }} style={{ position: "absolute", top: "12px", right: "12px", ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
+            <button onClick={() => handleDelete(b.id)} style={{ position: "absolute", top: "12px", right: "12px", ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
               <div style={{ width: 40, height: 40, borderRadius: "10px", background: (cat?.color||"#888")+"1A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>{cat?.icon}</div>
               <div><p style={{ margin: 0, fontSize: "15px", fontWeight: 600 }}>{cat?.name}</p></div>
@@ -539,7 +536,7 @@ const Budgets = ({ budgets, setBudgets, transactions, currentMonth, onSave }) =>
 // ============================================================
 // SAVINGS
 // ============================================================
-const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
+const SavingsPage = ({ savingsPots, setSavingsPots, onSave, userId, supabase, loadData }) => {
   const [showAddPot, setShowAddPot] = useState(false);
   const [showAddContrib, setShowAddContrib] = useState(null);
   const [showHistory, setShowHistory] = useState(null);
@@ -556,8 +553,53 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
   const now = new Date(); const monthlyTrend = [];
   for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const key = getMonthKey(d.toISOString()); const val = savingsPots.reduce((s, p) => s + p.contributions.filter(c => getMonthKey(c.date) === key).reduce((ss, c) => ss + c.amount, 0), 0); monthlyTrend.push({ label: MONTHS[d.getMonth()], value: val, highlight: i === 0 }); }
 
-  const handleAddPot = () => { if (!potForm.name || !potForm.target) return; if (editPot) setSavingsPots(prev => prev.map(p => p.id === editPot.id ? { ...p, name: potForm.name, icon: potForm.icon, target: parseFloat(potForm.target), color: potForm.color, monthlyAmount: parseFloat(potForm.monthlyAmount) || 0 } : p)); else setSavingsPots(prev => [...prev, { id: uid(), name: potForm.name, icon: potForm.icon, target: parseFloat(potForm.target), color: potForm.color, monthlyAmount: parseFloat(potForm.monthlyAmount) || 0, contributions: [] }]); onSave(); setShowAddPot(false); setEditPot(null); };
-  const handleAddContrib = () => { if (!contribForm.amount || !showAddContrib) return; setSavingsPots(prev => prev.map(p => p.id === showAddContrib ? { ...p, contributions: [...p.contributions, { id: uid(), amount: parseFloat(contribForm.amount), date: contribForm.date, note: contribForm.note }] } : p)); onSave(); setShowAddContrib(null); };
+  const handleAddPot = async () => { 
+      if (!potForm.name || !potForm.target) return; 
+      
+      const potData = { 
+          name: potForm.name, 
+          icon: potForm.icon, 
+          target: parseFloat(potForm.target), 
+          color: potForm.color, 
+          monthly_amount: parseFloat(potForm.monthlyAmount) || 0,
+          user_id: userId
+      };
+
+      if (editPot) {
+          await supabase.from('savings_pots').update(potData).eq('id', editPot.id);
+      } else {
+          await supabase.from('savings_pots').insert([potData]);
+      }
+      
+      await loadData();
+      setShowAddPot(false); setEditPot(null); 
+  };
+
+  const handleAddContrib = async () => { 
+      if (!contribForm.amount || !showAddContrib) return; 
+      
+      const contribData = {
+          pot_id: showAddContrib,
+          amount: parseFloat(contribForm.amount),
+          date: contribForm.date,
+          note: contribForm.note,
+          user_id: userId
+      };
+
+      await supabase.from('savings_contributions').insert([contribData]);
+      await loadData();
+      setShowAddContrib(null); 
+  };
+
+  const handleDeletePot = async (id) => {
+      await supabase.from('savings_pots').delete().eq('id', id);
+      loadData();
+  };
+
+  const handleDeleteContrib = async (id) => {
+      await supabase.from('savings_contributions').delete().eq('id', id);
+      loadData();
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -587,7 +629,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
               </div>
               <div style={{ display: "flex", gap: "4px" }}>
                 <button onClick={() => { setEditPot(pot); setPotForm({ name: pot.name, icon: pot.icon, target: String(pot.target), color: pot.color, monthlyAmount: String(pot.monthlyAmount||"") }); setShowAddPot(true); }} style={{ ...btn, background: "none", color: C.textDim, fontSize: "13px", padding: "4px", border: "none" }}>✎</button>
-                <button onClick={() => { setSavingsPots(prev => prev.filter(p => p.id !== pot.id)); onSave(); }} style={{ ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
+                <button onClick={() => handleDeletePot(pot.id)} style={{ ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "8px" }}><span style={{ fontSize: "24px", fontWeight: 700, color: pot.color }}>{fmt(potTotal)}</span><span style={{ fontSize: "13px", color: C.textMuted }}>of {fmt(pot.target)}</span></div>
@@ -623,7 +665,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
         </div>
       </Modal>
       <Modal open={!!showHistory} onClose={() => setShowHistory(null)} title="History" width={520}>
-        {(() => { const pot = savingsPots.find(p => p.id === showHistory); if (!pot) return null; const sorted = [...pot.contributions].sort((a,b) => new Date(b.date)-new Date(a.date)); return <div>{sorted.map(c => <div key={c.id} style={{ display:"flex",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${C.border}`,gap:"10px" }}><div style={{flex:1}}><p style={{margin:0,fontSize:"13px"}}>{c.note||"Contribution"}</p><p style={{margin:"2px 0 0",fontSize:"11px",color:C.textDim}}>{dateStr(c.date)}</p></div><span style={{fontSize:"14px",fontWeight:600,color:C.accent}}>+{fmt(c.amount)}</span><button onClick={() => { setSavingsPots(prev => prev.map(p => p.id === pot.id ? {...p,contributions:p.contributions.filter(x=>x.id!==c.id)} : p)); onSave(); }} style={{...btn,background:C.redDim,color:C.red,fontSize:"11px",padding:"4px 8px",border:"none"}}>Remove</button></div>)}{sorted.length === 0 && <p style={{textAlign:"center",padding:"20px",color:C.textDim}}>No contributions</p>}</div>; })()}
+        {(() => { const pot = savingsPots.find(p => p.id === showHistory); if (!pot) return null; const sorted = [...pot.contributions].sort((a,b) => new Date(b.date)-new Date(a.date)); return <div>{sorted.map(c => <div key={c.id} style={{ display:"flex",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${C.border}`,gap:"10px" }}><div style={{flex:1}}><p style={{margin:0,fontSize:"13px"}}>{c.note||"Contribution"}</p><p style={{margin:"2px 0 0",fontSize:"11px",color:C.textDim}}>{dateStr(c.date)}</p></div><span style={{fontSize:"14px",fontWeight:600,color:C.accent}}>+{fmt(c.amount)}</span><button onClick={() => handleDeleteContrib(c.id)} style={{...btn,background:C.redDim,color:C.red,fontSize:"11px",padding:"4px 8px",border:"none"}}>Remove</button></div>)}{sorted.length === 0 && <p style={{textAlign:"center",padding:"20px",color:C.textDim}}>No contributions</p>}</div>; })()}
       </Modal>
     </div>
   );
@@ -776,7 +818,7 @@ const createSupabaseClient = (url, key) => {
 // ============================================================
 export default function App() {
   const [supabase] = useState(() => createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-  const isDemo = !SUPABASE_URL || SUPABASE_URL === "YOUR_SUPABASE_URL";
+  const isDemo = false; // DISABLED DEMO MODE
   const [session, setSession] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [page, setPage] = useState("dashboard");
@@ -790,35 +832,49 @@ export default function App() {
   const [syncing, setSyncing] = useState(false);
   const userId = session?.user?.id;
 
-  useEffect(() => { if (isDemo) { setAuthChecked(true); return; } supabase.auth.getSession().then(({ data }) => { if (data?.session) setSession(data.session); setAuthChecked(true); }); }, []);
+  useEffect(() => { 
+      supabase.auth.getSession().then(({ data }) => { 
+          if (data?.session) setSession(data.session); 
+          setAuthChecked(true); 
+      }); 
+  }, []);
 
   const loadData = useCallback(async () => {
-    if (isDemo || !userId) {
-      const data = await DB.load("finntrack-data", null);
-      if (data) { setTransactions(data.transactions||[]); setDebts(data.debts||[]); setBudgets(data.budgets||[]); setSavingsPots(data.savingsPots||[]); }
-      else { const s = generateSampleData(); setTransactions(s.transactions); setDebts(s.debts); setBudgets(s.budgets); setSavingsPots(s.savingsPots); }
-      setLoaded(true); return;
-    }
+    if (!userId) return;
+    
     setSyncing(true);
     try {
-      const [txR, bR, dR, pR] = await Promise.all([supabase.from("transactions").select("*").eq("user_id",userId).order("date",{ascending:false}), supabase.from("budgets").select("*").eq("user_id",userId), supabase.from("debts").select("*").eq("user_id",userId), supabase.from("savings_pots").select("*").eq("user_id",userId)]);
-      setTransactions((txR.data||[]).map(t=>({...t,amount:parseFloat(t.amount)}))); setBudgets((bR.data||[]).map(b=>({...b,limit:parseFloat(b.limit)}))); setDebts((dR.data||[]).map(d=>({...d,amount:parseFloat(d.amount)})));
+      const [txR, bR, dR, pR] = await Promise.all([
+          supabase.from("transactions").select("*").eq("user_id",userId).order("date",{ascending:false}), 
+          supabase.from("budgets").select("*").eq("user_id",userId), 
+          supabase.from("debts").select("*").eq("user_id",userId), 
+          supabase.from("savings_pots").select("*").eq("user_id",userId)
+      ]);
+
+      setTransactions((txR.data||[]).map(t=>({...t,amount:parseFloat(t.amount)}))); 
+      setBudgets((bR.data||[]).map(b=>({...b,limit:parseFloat(b.limit)}))); 
+      setDebts((dR.data||[]).map(d=>({...d,amount:parseFloat(d.amount)})));
+      
       const pots = pR.data || [];
-      if (pots.length > 0) { const cR = await supabase.from("savings_contributions").select("*").eq("user_id",userId); const contribs = (cR.data||[]).map(c=>({...c,amount:parseFloat(c.amount)})); setSavingsPots(pots.map(p=>({...p,target:parseFloat(p.target),monthlyAmount:parseFloat(p.monthly_amount||0),contributions:contribs.filter(c=>c.pot_id===p.id)}))); }
-      else setSavingsPots([]);
+      if (pots.length > 0) { 
+          const cR = await supabase.from("savings_contributions").select("*").eq("user_id",userId); 
+          const contribs = (cR.data||[]).map(c=>({...c,amount:parseFloat(c.amount)})); 
+          setSavingsPots(pots.map(p=>({...p,target:parseFloat(p.target),monthlyAmount:parseFloat(p.monthly_amount||0),contributions:contribs.filter(c=>c.pot_id===p.id)}))); 
+      } else {
+          setSavingsPots([]);
+      }
     } catch (e) { console.error(e); }
     setSyncing(false); setLoaded(true);
-  }, [userId, isDemo, supabase]);
+  }, [userId, supabase]);
 
-  useEffect(() => { if (isDemo || userId) loadData(); }, [userId, isDemo, loadData]);
+  useEffect(() => { if (userId) loadData(); }, [userId, loadData]);
 
-  const save = useCallback(() => { if (isDemo) setTimeout(() => DB.save("finntrack-data", { transactions, debts, budgets, savingsPots }), 100); }, [transactions, debts, budgets, savingsPots, isDemo]);
-  useEffect(() => { if (loaded && isDemo) save(); }, [transactions, debts, budgets, savingsPots, loaded, save, isDemo]);
+  const save = useCallback(() => { /* No-op: handled by individual components */ }, []);
 
   const handleSignOut = async () => { await supabase.auth.signOut(); setSession(null); setTransactions([]); setDebts([]); setBudgets([]); setSavingsPots([]); setLoaded(false); };
 
-  if (!isDemo && authChecked && !session) return <AuthScreen onAuth={s => setSession(s)} supabase={supabase} />;
-  if (!authChecked || !loaded) return <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}><GlobalCSS /><p style={{ color: C.textMuted }}>Loading...</p></div>;
+  if (authChecked && !session) return <AuthScreen onAuth={s => setSession(s)} supabase={supabase} />;
+  if (!authChecked || (!loaded && userId)) return <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}><GlobalCSS /><p style={{ color: C.textMuted }}>Loading...</p></div>;
 
   const NAV = [{id:"dashboard",icon:"◎",label:"Dashboard"},{id:"transactions",icon:"↕",label:"Transactions"},{id:"savings",icon:"🏦",label:"Savings"},{id:"debts",icon:"⇄",label:"Debts"},{id:"budgets",icon:"🎯",label:"Budgets"},{id:"settings",icon:"⚙",label:"Settings"}];
 
@@ -853,13 +909,13 @@ export default function App() {
           <span style={{ fontSize: "17px", fontWeight: 700, whiteSpace: "nowrap" }}>FinnTrack</span>
         </div>
         <div style={{ padding: "0 16px", marginBottom: "16px" }}>
-          <div style={{ padding: "6px 10px", borderRadius: "6px", background: isDemo ? C.amberDim : C.accentDim, fontSize: "11px", fontWeight: 500, color: isDemo ? C.amber : C.accent }}>{isDemo ? "⚠ Demo mode" : `✓ Connected${syncing ? "..." : ""}`}</div>
-          {!isDemo && session?.user?.email && <p style={{ margin: "6px 0 0", fontSize: "11px", color: C.textDim, overflow: "hidden", textOverflow: "ellipsis" }}>{session.user.email}</p>}
+          <div style={{ padding: "6px 10px", borderRadius: "6px", background: C.accentDim, fontSize: "11px", fontWeight: 500, color: C.accent }}>{syncing ? "Syncing..." : "✓ Connected"}</div>
+          {session?.user?.email && <p style={{ margin: "6px 0 0", fontSize: "11px", color: C.textDim, overflow: "hidden", textOverflow: "ellipsis" }}>{session.user.email}</p>}
         </div>
         <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px", padding: "0 8px" }}>
           {NAV.map(n => <button key={n.id} onClick={() => { setPage(n.id); setSidebarOpen(false); }} style={{ ...btn, display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", fontSize: "14px", fontWeight: 500, background: page === n.id ? C.accentDim : "transparent", color: page === n.id ? C.accent : C.textMuted, borderRadius: "8px", whiteSpace: "nowrap", border: "none", width: "100%", textAlign: "left" }}><span style={{ fontSize: "16px", width: "20px", textAlign: "center" }}>{n.icon}</span>{n.label}</button>)}
         </nav>
-        {!isDemo && <button onClick={handleSignOut} style={{ ...btn, display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", margin: "0 8px", fontSize: "13px", fontWeight: 500, background: "transparent", color: C.red, borderRadius: "8px", border: "none", width: "calc(100% - 16px)", textAlign: "left" }}><span style={{ fontSize: "14px", width: "20px", textAlign: "center" }}>↪</span>Sign Out</button>}
+        <button onClick={handleSignOut} style={{ ...btn, display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", margin: "0 8px", fontSize: "13px", fontWeight: 500, background: "transparent", color: C.red, borderRadius: "8px", border: "none", width: "calc(100% - 16px)", textAlign: "left" }}><span style={{ fontSize: "14px", width: "20px", textAlign: "center" }}>↪</span>Sign Out</button>
       </aside>
 
       {/* Main Content Area */}
@@ -880,10 +936,10 @@ export default function App() {
         <main style={{ flex: 1, padding: "24px 24px 40px", overflow: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div style={{ width: "100%", maxWidth: "1100px" }}> 
             {page === "dashboard" && <Dashboard transactions={transactions} budgets={budgets} debts={debts} savingsPots={savingsPots} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} setPage={setPage} />}
-            {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} />}
-            {page === "savings" && <SavingsPage savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} />}
-            {page === "debts" && <Debts debts={debts} setDebts={setDebts} onSave={save} />}
-            {page === "budgets" && <Budgets budgets={budgets} setBudgets={setBudgets} transactions={transactions} currentMonth={currentMonth} onSave={save} />}
+            {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} userId={userId} supabase={supabase} loadData={loadData} />}
+            {page === "savings" && <SavingsPage savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} userId={userId} supabase={supabase} loadData={loadData} />}
+            {page === "debts" && <Debts debts={debts} setDebts={setDebts} onSave={save} userId={userId} supabase={supabase} loadData={loadData} />}
+            {page === "budgets" && <Budgets budgets={budgets} setBudgets={setBudgets} transactions={transactions} currentMonth={currentMonth} onSave={save} userId={userId} supabase={supabase} loadData={loadData} />}
             {page === "settings" && <Settings transactions={transactions} debts={debts} budgets={budgets} savingsPots={savingsPots} setTransactions={setTransactions} setDebts={setDebts} setBudgets={setBudgets} setSavingsPots={setSavingsPots} onSave={save} />}
           </div>
         </main>
