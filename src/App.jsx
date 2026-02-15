@@ -269,14 +269,14 @@ const Dashboard = ({ transactions, budgets, debts, savingsPots, currentMonth, se
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
         <StatCard label="Income" value={fmt(income)} color={C.accent} bg={C.accentDim} icon="↓" />
         <StatCard label="Expenses" value={fmt(expenses)} color={C.red} bg={C.redDim} icon="↑" />
         <StatCard label="Savings" value={fmt(savings)} color={savings >= 0 ? C.accent : C.red} bg={savings >= 0 ? C.accentDim : C.redDim} icon="◎" />
         <StatCard label="Savings Rate" value={`${savingsRate}%`} color={parseFloat(savingsRate) >= 20 ? C.accent : C.amber} bg={parseFloat(savingsRate) >= 20 ? C.accentDim : C.amberDim} icon="%" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
         <Card><p style={{ margin: "0 0 16px", fontSize: "14px", fontWeight: 600 }}>Monthly Spending</p><SparkBar data={trend} height={80} /></Card>
         <Card style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <DonutChart segments={catData.slice(0, 6)} />
@@ -287,7 +287,7 @@ const Dashboard = ({ transactions, budgets, debts, savingsPots, currentMonth, se
         </Card>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
         <Card>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}><p style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}>Budgets</p><button onClick={() => setPage("budgets")} style={{ ...btn, background: "none", color: C.accent, fontSize: "12px", padding: "2px" }}>View all →</button></div>
           {budgetStatus.length === 0 && <p style={{ color: C.textDim, fontSize: "13px" }}>No budgets set</p>}
@@ -300,7 +300,7 @@ const Dashboard = ({ transactions, budgets, debts, savingsPots, currentMonth, se
         </Card>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
         <Card>
           <p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>By Payment App</p>
           {appData.map(([app, val]) => { const p = expenses > 0 ? (val/expenses*100) : 0; return <div key={app} style={{ marginBottom: "10px" }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}><span style={{ fontSize: "12px", color: C.textMuted }}>{app}</span><span style={{ fontSize: "12px", fontWeight: 600 }}>{fmt(val)} <span style={{color: C.textDim}}>({p.toFixed(0)}%)</span></span></div><div style={{ height: "4px", borderRadius: "2px", background: C.bg }}><div style={{ height: "100%", borderRadius: "2px", width: `${p}%`, background: C.blue }} /></div></div>; })}
@@ -454,7 +454,7 @@ const Debts = ({ debts, setDebts, onSave }) => {
         <div><h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Debts & Splits</h2><p style={{ margin: "4px 0 0", color: C.textMuted, fontSize: "13px" }}>Track who owes whom</p></div>
         <Button onClick={() => setShowAdd(true)}>+ Add Debt</Button>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
         <Card style={{ padding: "16px", background: C.accentDim, border: `1px solid ${C.accent}33` }}><p style={{ margin: 0, fontSize: "12px", color: C.accent }}>Owed to you</p><p style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: 700, color: C.accent }}>{fmt(totalOwed)}</p></Card>
         <Card style={{ padding: "16px", background: C.redDim, border: `1px solid ${C.red}33` }}><p style={{ margin: 0, fontSize: "12px", color: C.red }}>You owe</p><p style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: 700, color: C.red }}>{fmt(totalIOwe)}</p></Card>
         <Card style={{ padding: "16px" }}><p style={{ margin: 0, fontSize: "12px", color: C.textMuted }}>Net</p><p style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: 700, color: totalOwed - totalIOwe >= 0 ? C.accent : C.red }}>{fmt(totalOwed - totalIOwe)}</p></Card>
@@ -511,7 +511,7 @@ const Budgets = ({ budgets, setBudgets, transactions, currentMonth, onSave }) =>
         <Button onClick={() => setShowAdd(true)} disabled={availableCats.length === 0}>+ Add Budget</Button>
       </div>
       {budgets.length === 0 && <Card style={{ textAlign: "center", padding: "40px" }}><p style={{ fontSize: "32px", margin: "0 0 8px" }}>🎯</p><p style={{ color: C.textMuted }}>No budgets yet</p><Button onClick={() => setShowAdd(true)} style={{ marginTop: "12px" }}>Create one</Button></Card>}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "14px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
         {budgets.map(b => { const cat = CATEGORIES.find(c => c.id === b.category); const spent = byCat[b.category] || 0; const pct = Math.min((spent/b.limit)*100, 100); const remaining = b.limit - spent; const sc = pct > 90 ? C.red : pct > 70 ? C.amber : C.accent; return (
           <Card key={b.id} style={{ position: "relative" }}>
             <button onClick={() => { setBudgets(prev => prev.filter(x => x.id !== b.id)); onSave(); }} style={{ position: "absolute", top: "12px", right: "12px", ...btn, background: "none", color: C.textDim, fontSize: "14px", padding: "4px", border: "none" }}>×</button>
@@ -547,7 +547,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
   const [potForm, setPotForm] = useState({ name: "", icon: "🏦", target: "", color: "#22D3A7", monthlyAmount: "" });
   const [contribForm, setContribForm] = useState({ amount: "", date: new Date().toISOString().slice(0,10), note: "" });
   const POT_ICONS = ["🏦","🛡️","📈","✈️","🏠","🎓","💍","🚗","👶","💻","🎯","💎"];
-  const POT_COLORS = ["#22D3A7","#42A5F5","#FFB74D","#AB47BC","#EC407A","#66BB6A","#5C6BC0","#EF5350"];
+  const POT_COLORS = ["#22D3A7","#42A5F5","#FFB74D","#AB47BC","#EC407A","#66BB6A","#5C6BB0","#EF5350"];
   const totalSaved = savingsPots.reduce((s, p) => s + p.contributions.reduce((ss, c) => ss + c.amount, 0), 0);
   const totalTargets = savingsPots.reduce((s, p) => s + (p.target || 0), 0);
   const totalMonthly = savingsPots.reduce((s, p) => s + (p.monthlyAmount || 0), 0);
@@ -566,7 +566,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
         <Button onClick={() => { setEditPot(null); setPotForm({ name: "", icon: "🏦", target: "", color: "#22D3A7", monthlyAmount: "" }); setShowAddPot(true); }}>+ New Pot</Button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
         <StatCard label="Total Saved" value={fmt(totalSaved)} color={C.accent} bg={C.accentDim} icon="🏦" />
         <StatCard label="This Month" value={fmt(thisMonthContribs)} color={C.blue} bg={C.blueDim} icon="📅" />
         <StatCard label="Monthly Commitment" value={fmt(totalMonthly)} color={C.purple} bg={C.purpleDim} icon="🔄" />
@@ -577,7 +577,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
 
       {savingsPots.length === 0 && <Card style={{ textAlign: "center", padding: "50px 20px" }}><p style={{ fontSize: "40px", margin: "0 0 12px" }}>🏦</p><p style={{ color: C.text, fontSize: "16px", fontWeight: 600 }}>No savings pots yet</p><Button onClick={() => setShowAddPot(true)} style={{ marginTop: "12px" }}>Create one</Button></Card>}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
         {savingsPots.map(pot => { const potTotal = pot.contributions.reduce((s, c) => s + c.amount, 0); const pct = pot.target > 0 ? Math.min((potTotal/pot.target)*100, 100) : 0; const remaining = pot.target - potTotal; const monthsToGoal = pot.monthlyAmount > 0 && remaining > 0 ? Math.ceil(remaining / pot.monthlyAmount) : null; const thisMonthPot = pot.contributions.filter(c => getMonthKey(c.date) === thisMonthKey).reduce((s, c) => s + c.amount, 0); const monthlyHit = pot.monthlyAmount > 0 && thisMonthPot >= pot.monthlyAmount; return (
           <Card key={pot.id} style={{ borderTop: `3px solid ${pot.color}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "14px" }}>
@@ -602,7 +602,7 @@ const SavingsPage = ({ savingsPots, setSavingsPots, onSave }) => {
         ); })}
       </div>
 
-      {savingsPots.length > 0 && totalMonthly > 0 && <Card><p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>Projected Growth</p><div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>{[3,6,12,24].map(m => <div key={m} style={{ padding: "14px", background: C.bg, borderRadius: "8px", textAlign: "center" }}><p style={{ margin: 0, fontSize: "11px", color: C.textDim }}>{m} months</p><p style={{ margin: "6px 0 0", fontSize: "18px", fontWeight: 700, color: C.accent }}>{fmtShort(totalSaved + totalMonthly * m)}</p></div>)}</div></Card>}
+      {savingsPots.length > 0 && totalMonthly > 0 && <Card><p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>Projected Growth</p><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px" }}>{[3,6,12,24].map(m => <div key={m} style={{ padding: "14px", background: C.bg, borderRadius: "8px", textAlign: "center" }}><p style={{ margin: 0, fontSize: "11px", color: C.textDim }}>{m} months</p><p style={{ margin: "6px 0 0", fontSize: "18px", fontWeight: 700, color: C.accent }}>{fmtShort(totalSaved + totalMonthly * m)}</p></div>)}</div></Card>}
 
       <Modal open={showAddPot} onClose={() => { setShowAddPot(false); setEditPot(null); }} title={editPot ? "Edit Pot" : "New Savings Pot"}>
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -641,7 +641,7 @@ const Settings = ({ transactions, debts, budgets, savingsPots, setTransactions, 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Settings</h2>
-      <Card><p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>Overview</p><div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>{[{l:"Transactions",v:stats.tx},{l:"Total Income",v:fmtShort(stats.inc)},{l:"Total Expenses",v:fmtShort(stats.exp)},{l:"Total Saved",v:fmtShort(stats.saved)}].map((s,i) => <div key={i} style={{ padding: "12px", background: C.bg, borderRadius: "8px" }}><p style={{ margin: 0, fontSize: "11px", color: C.textDim }}>{s.l}</p><p style={{ margin: "4px 0 0", fontSize: "18px", fontWeight: 700 }}>{s.v}</p></div>)}</div></Card>
+      <Card><p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>Overview</p><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px" }}>{[{l:"Transactions",v:stats.tx},{l:"Total Income",v:fmtShort(stats.inc)},{l:"Total Expenses",v:fmtShort(stats.exp)},{l:"Total Saved",v:fmtShort(stats.saved)}].map((s,i) => <div key={i} style={{ padding: "12px", background: C.bg, borderRadius: "8px" }}><p style={{ margin: 0, fontSize: "11px", color: C.textDim }}>{s.l}</p><p style={{ margin: "4px 0 0", fontSize: "18px", fontWeight: 700 }}>{s.v}</p></div>)}</div></Card>
       <Card><p style={{ margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>Data</p><div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: C.bg, borderRadius: "8px" }}><div><p style={{ margin: 0, fontSize: "14px" }}>Export</p><p style={{ margin: "2px 0 0", fontSize: "12px", color: C.textDim }}>Download JSON backup</p></div><Button variant="secondary" onClick={handleExport}>Export</Button></div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: C.bg, borderRadius: "8px" }}><div><p style={{ margin: 0, fontSize: "14px" }}>Import</p><p style={{ margin: "2px 0 0", fontSize: "12px", color: C.textDim }}>Restore from backup</p></div><Button variant="secondary" onClick={handleImport}>Import</Button></div>
@@ -808,7 +808,7 @@ export default function App() {
       else setSavingsPots([]);
     } catch (e) { console.error(e); }
     setSyncing(false); setLoaded(true);
-  }, [userId, isDemo]);
+  }, [userId, isDemo, supabase]);
 
   useEffect(() => { if (isDemo || userId) loadData(); }, [userId, isDemo, loadData]);
 
@@ -827,15 +827,27 @@ export default function App() {
       <GlobalCSS />
 
       {/* Mobile overlay */}
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 998, display: "none" }} className="mob-overlay" />}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 998 }} />}
 
       {/* Sidebar */}
-      <aside id="ft-sidebar" style={{ width: 220, minHeight: "100vh", background: C.card, borderRight: `1px solid ${C.border}`, padding: "20px 0", display: "flex", flexDirection: "column", flexShrink: 0, zIndex: 999, transition: "left 0.2s ease" }}>
+      <aside id="ft-sidebar" style={{ 
+        width: 220, 
+        height: "100vh", 
+        background: C.card, 
+        borderRight: `1px solid ${C.border}`, 
+        padding: "20px 0", 
+        display: "flex", 
+        flexDirection: "column", 
+        flexShrink: 0, 
+        zIndex: 999, 
+        transition: "left 0.2s ease",
+        position: "fixed",
+        top: 0,
+        left: sidebarOpen ? "0" : "-220px"
+      }}>
       <style>{`
-  #ft-sidebar { position: fixed; left: ${sidebarOpen ? "0" : "-220"}px; top: 0; bottom: 0; }
-  @media (min-width: 769px) { #ft-sidebar { position: relative !important; left: 0 !important; } }
-  @media (max-width: 768px) { .mob-overlay { display: block !important; } }
-`}</style>
+        @media (min-width: 769px) { #ft-sidebar { left: 0 !important; } }
+      `}</style>
         <div style={{ padding: "0 16px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ width: 32, height: 32, borderRadius: "8px", background: `linear-gradient(135deg, ${C.accent}, ${C.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: C.bg, flexShrink: 0 }}>F</div>
           <span style={{ fontSize: "17px", fontWeight: 700, whiteSpace: "nowrap" }}>FinnTrack</span>
@@ -850,21 +862,30 @@ export default function App() {
         {!isDemo && <button onClick={handleSignOut} style={{ ...btn, display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", margin: "0 8px", fontSize: "13px", fontWeight: 500, background: "transparent", color: C.red, borderRadius: "8px", border: "none", width: "calc(100% - 16px)", textAlign: "left" }}><span style={{ fontSize: "14px", width: "20px", textAlign: "center" }}>↪</span>Sign Out</button>}
       </aside>
 
-      {/* Main */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", minWidth: 0 }}>
-        {/* Mobile header */}
-        <div style={{ padding: "12px 20px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: "12px", background: C.card, position: "sticky", top: 0, zIndex: 100 }}>
-          <style>{`@media (min-width: 769px) { .mob-header { display: none !important; } }`}</style>
-          <button className="mob-header" onClick={() => setSidebarOpen(true)} style={{ ...btn, background: C.border, color: C.text, padding: "8px 10px", fontSize: "16px", border: "none", display: "block" }}>☰</button>
+      {/* Main Content Area */}
+      <div id="main-content" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", minWidth: 0, transition: "padding-left 0.2s ease" }}>
+        <style>{`
+          #main-content { padding-left: 220px; }
+          @media (max-width: 768px) { #main-content { padding-left: 0 !important; } }
+        `}</style>
+        
+        {/* Mobile header (hidden on desktop) */}
+        <div className="mob-header" style={{ padding: "12px 20px", borderBottom: `1px solid ${C.border}`, display: "none", alignItems: "center", gap: "12px", background: C.card, position: "sticky", top: 0, zIndex: 100 }}>
+          <style>{`@media (max-width: 768px) { .mob-header { display: flex !important; } }`}</style>
+          <button onClick={() => setSidebarOpen(true)} style={{ ...btn, background: C.border, color: C.text, padding: "8px 10px", fontSize: "16px", border: "none" }}>☰</button>
           <span style={{ fontWeight: 600, fontSize: "15px" }}>{NAV.find(n => n.id === page)?.label || "FinnTrack"}</span>
         </div>
-        <main style={{ flex: 1, padding: "24px 24px 40px", overflow: "auto" }}>
-          {page === "dashboard" && <Dashboard transactions={transactions} budgets={budgets} debts={debts} savingsPots={savingsPots} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} setPage={setPage} />}
-          {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} />}
-          {page === "savings" && <SavingsPage savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} />}
-          {page === "debts" && <Debts debts={debts} setDebts={setDebts} onSave={save} />}
-          {page === "budgets" && <Budgets budgets={budgets} setBudgets={setBudgets} transactions={transactions} currentMonth={currentMonth} onSave={save} />}
-          {page === "settings" && <Settings transactions={transactions} debts={debts} budgets={budgets} savingsPots={savingsPots} setTransactions={setTransactions} setDebts={setDebts} setBudgets={setBudgets} setSavingsPots={setSavingsPots} onSave={save} />}
+
+        {/* This container centers your pages and prevents the left-skewed look */}
+        <main style={{ flex: 1, padding: "24px 24px 40px", overflow: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ width: "100%", maxWidth: "1100px" }}> 
+            {page === "dashboard" && <Dashboard transactions={transactions} budgets={budgets} debts={debts} savingsPots={savingsPots} currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} setPage={setPage} />}
+            {page === "transactions" && <Transactions transactions={transactions} setTransactions={setTransactions} onSave={save} />}
+            {page === "savings" && <SavingsPage savingsPots={savingsPots} setSavingsPots={setSavingsPots} onSave={save} />}
+            {page === "debts" && <Debts debts={debts} setDebts={setDebts} onSave={save} />}
+            {page === "budgets" && <Budgets budgets={budgets} setBudgets={setBudgets} transactions={transactions} currentMonth={currentMonth} onSave={save} />}
+            {page === "settings" && <Settings transactions={transactions} debts={debts} budgets={budgets} savingsPots={savingsPots} setTransactions={setTransactions} setDebts={setDebts} setBudgets={setBudgets} setSavingsPots={setSavingsPots} onSave={save} />}
+          </div>
         </main>
       </div>
     </div>
