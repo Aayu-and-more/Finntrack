@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode Palette (Default) */
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --cardHover: #F1F5F9;
+    --border: #E2E8F0;
+
+    --accent: #059669;
+    --accentDim: rgba(5, 150, 105, 0.12);
+
+    --red: #DC2626;
+    --redDim: rgba(220, 38, 38, 0.12);
+
+    --amber: #D97706;
+    --amberDim: rgba(217, 119, 6, 0.12);
+
+    --blue: #2563EB;
+    --blueDim: rgba(37, 99, 235, 0.12);
+
+    --purple: #9333EA;
+    --purpleDim: rgba(147, 51, 234, 0.12);
+
+    --text: #0F172A;
+    --textMuted: #475569;
+    --textDim: #94A3B8;
+  }
+
+  .dark {
+    /* Original Dark Mode Palette */
+    --bg: #0B0F1A;
+    --card: #141925;
+    --cardHover: #1A2030;
+    --border: #1E2538;
+
+    --accent: #22D3A7;
+    --accentDim: rgba(34, 211, 167, 0.12);
+
+    --red: #EF5350;
+    --redDim: rgba(239, 83, 80, 0.12);
+
+    --amber: #FFB74D;
+    --amberDim: rgba(255, 183, 77, 0.12);
+
+    --blue: #42A5F5;
+    --blueDim: rgba(66, 165, 245, 0.12);
+
+    --purple: #AB47BC;
+    --purpleDim: rgba(171, 71, 188, 0.12);
+
+    --text: #E8ECF4;
+    --textMuted: #7A8BA8;
+    --textDim: #4A5568;
+  }
+
+  html {
+    font-size: 14px;
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg text-text min-h-screen antialiased;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-md;
+  }
+}
