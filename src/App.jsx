@@ -74,10 +74,20 @@ export default function App() {
     );
   }
 
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      setSession(null);
+      setPage("dashboard");
+    } catch (err) {
+      console.error("Failed to log out:", err);
+    }
+  };
+
   // Authenticated Application State
   return (
     <ThemeProvider>
-      <Layout page={page} setPage={setPage} userEmail={session.email}>
+      <Layout page={page} setPage={setPage} onSignOut={handleSignOut}>
 
         {page === "dashboard" && (
           <Dashboard
